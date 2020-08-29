@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>{{ titlePage }}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="author" content="annurkhozin@gmail.com">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    {{ style('css/bootstrap.min') }}
+    {{ style('css/style') }}
+</head>
+<body>
+    
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/home">Tweet Sentiment</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <!-- <li class="nav-item active">
+              <a class="nav-link" href="/home">Home <span class="sr-only">(current)</span></a>
+            </li> -->
+            <li class="nav-item">
+              <!-- <a class="nav-link" href="#">
+                    <i class="material-icons">apps</i>
+              </a> -->
+            </li>
+          </ul>
+        </div>
+      </nav>
+      <div class="container">
+            <div class="row">
+                <div class="col-md-12 col-xs-12 text-center">
+                    <div class="box-content">
+                        <div class="header-title">
+                            <h3 style="color:#1967d2;">Hai Sobat, Ayo cari topik twitter di sini</h3>
+                        </div>
+                        <form novalidate="novalidate" method="get" class="searchbox form-search-tweet sbx-twitter">
+                            <div role="search" class="sbx-twitter__wrapper">
+                                <input type="search" name="q" placeholder="Cari Topik ...." autocomplete="off" required="required" class="sbx-twitter__input">
+                                <button type="submit" title="Cari Topik" class="sbx-twitter__submit">
+                                    <i class="material-icons">search</i>
+                                </button>
+                                <button type="reset" title="Clear the search query." class="sbx-twitter__reset">
+                                    <i class="material-icons" style="margin-top:6px;">close</i>
+                                </button>
+                            </div>
+                        </form> 
+                    </div>              
+                </div>
+                <div class="col-md-12 col-xs-12">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#ringkasan">Ringkasan</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tweet">Tweet</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#history">Riwayat</a>
+                        </li>
+                    </ul>   
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                        <div id="ringkasan" class="container tab-pane active"><br>
+                            <h3>Ringkasan</h3>
+                            <p></p>
+                        </div>
+                        <div id="tweet" class="container tab-pane fade"><br>
+                            <h3>Tweet dari <span class="keyword"><span></h3>
+                            <div class="tweet-status"></div>  
+                            
+                        </div>
+                        <div id="history" class="container tab-pane fade"><br>
+                            <h3>Riwayat</h3>
+                            <p></p>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+    </body>
+    {{ script('js/jquery.min') }}
+    {{ script('js/popper.min') }}
+    {{ script('js/bootstrap.min') }}
+    <script type="text/javascript">
+        document.querySelector('.searchbox [type="reset"]').addEventListener('click', function() {  this.parentNode.querySelector('input').focus();});
+        $('.form-search-tweet').on('submit', function(event){
+		event.preventDefault();
+		var keyword = $('#keyword').val();
+		if( keyword ==''){
+            alert('Kata kunci tidak boleh kosong')
+		}else{
+            var formData = {
+                'q': $('input[name=q]').val(),
+                'count': 100,
+                'lang' : "id"
+            };
+			$.ajax({
+				url: "sentiment-process",
+				method:"GET",
+				data: formData,
+				contentType:JSON,
+				cache:false,
+				success:function(data){
+                    var statuss = data.statuses;
+                    var content = '<ul class="chat">';
+                    statuss.forEach(key => {
+                        content += '<li class="left clearfix">'+
+                                        '<span class="chat-img pull-left">'+
+                                            '<img src="'+key.user.profile_image_url+'" alt="User Avatar" class="img-circle" />'+
+                                        '</span>'+
+                                        '<div class="chat-body clearfix">'+
+                                            '<div class="header">'+
+                                                '<strong class="primary-font">Jack Sparrow</strong> <small class="pull-right text-muted">'+
+                                                    '<span class="glyphicon glyphicon-time"></span>'+key.created_at+'</small>'+
+                                            '</div>'+
+                                            '<p>'+key.text+
+                                            '</p>'+
+                                        '</div>'+
+                                    '</li>'
+                        });
+                        content += '</ul>';
+                        $('.tweet-status').html(content);
+				},
+				error: function (status) {
+                    
+				}
+			})
+		}
+	});
+    </script>
+</html>
